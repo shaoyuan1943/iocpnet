@@ -15,11 +15,23 @@ namespace iocpnet {
   }
 
   void IOCPChannel::handle_completion_error(OVERLAPPED* ol, DWORD err) {
+    std::shared_ptr<void> guard;
+    if (tied_) {
+      guard = tie_.lock();
+      if (!guard) { return; }
+    }
+
     OverlappedContext* context = CONTAINING_RECORD(ol, OverlappedContext, ol);
     if (on_err_func_ != nullptr) { on_err_func_(context, err); }
   }
 
   void IOCPChannel::handle_completion(OVERLAPPED* ol, DWORD bytes_transferred) {
+    std::shared_ptr<void> guard;
+    if (tied_) {
+      guard = tie_.lock();
+      if (!guard) { return; }
+    }
+
     OverlappedContext* context = CONTAINING_RECORD(ol, OverlappedContext, ol);
     if (context->op == OperationType::kAccept) {
       if (on_accept_func_ != nullptr) { on_accept_func_(static_cast<AcceptContext*>(context), bytes_transferred); }

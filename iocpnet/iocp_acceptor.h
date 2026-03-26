@@ -1,4 +1,4 @@
-#ifndef IOCP_ACCEPTOR_H
+﻿#ifndef IOCP_ACCEPTOR_H
 #define IOCP_ACCEPTOR_H
 
 #include "iocp_sock.h"
@@ -11,22 +11,23 @@ namespace iocpnet {
   class IOCPAcceptor : public NonCopyable
       , public std::enable_shared_from_this<IOCPAcceptor> {
   public:
-    explicit IOCPAcceptor(IOCPEventPoll* poll);
+    explicit IOCPAcceptor(std::shared_ptr<IOCPEventPoll> poll);
     ~IOCPAcceptor();
 
     void shutdown();
     bool start(int accept_n, sockaddr_storage addr, ProtocolStack protocol_stack = ProtocolStack::kIPv4Only,
                int option = SocketOption::kNone);
-    bool listening() const { return listen_handle_ != invalid_socket; }
+    bool listening() const { return listen_handle_ != invalid_socket && !shut_.load(); }
     void set_conn_callback(std::function<void(socket_t, sockaddr_storage)> func) { on_conn_func_ = std::move(func); };
     void set_error_callback(std::function<void(DWORD)> func) { on_err_func_ = std::move(func); }
   private:
-    void _on_completion_accept(AcceptContext* context, DWORD bytes_transferred);
-    void _on_completion_error(OverlappedContext* context, DWORD err);
-    void _go_accepting();
+    void on_completion_accept_(AcceptContext* context, DWORD bytes_transferred);
+    void on_completion_error_(OverlappedContext* context, DWORD err);
+    void go_accepting_();
   private:
-    IOCPEventPoll*                                  event_poll_;
-    HANDLE                                          iocp_handle_;
+    std::shared_ptr<IOCPEventPoll>                  event_poll_;
+    std::atomic_bool                                shut_;
+    HANDLE                                          handle_;
     socket_t                                        listen_handle_;
     sockaddr_storage                                listen_sockaddr_;
     std::unique_ptr<IOCPChannel>                    channel_;

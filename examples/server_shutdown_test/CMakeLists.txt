@@ -1,0 +1,2 @@
+add_executable(server_shutdown_test main.cpp)
+target_link_libraries(server_shutdown_test PRIVATE iocpnet)

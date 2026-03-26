@@ -1,0 +1,2 @@
+add_executable(simple_client main.cpp)
+target_link_libraries(simple_client PRIVATE iocpnet)

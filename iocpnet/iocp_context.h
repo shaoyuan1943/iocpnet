@@ -47,7 +47,8 @@ namespace iocpnet {
   struct ReadContext : public OverlappedContext {
     WSABUF wsa;
     ReadContext()
-        : OverlappedContext(OperationType::kRead) {}
+        : OverlappedContext(OperationType::kRead)
+        , wsa {0, nullptr} {}
   };
 
   struct WriteContext : public OverlappedContext {
@@ -55,6 +56,7 @@ namespace iocpnet {
     Buffer* associated_buffer;
     WriteContext()
         : OverlappedContext(OperationType::kWrite)
+        , wsa {0, nullptr}
         , associated_buffer {nullptr} {}
   };
 } // namespace iocpnet

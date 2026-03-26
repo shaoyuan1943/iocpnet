@@ -51,7 +51,9 @@ if ($Command -eq "build-example") {
     
     Set-Location $BUILD_DIR
     cmake ..
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     cmake --build . --target $ExampleName --config Release
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     Set-Location ..
     
     $exePath1 = "$BUILD_DIR\examples\$ExampleName\Release\$ExampleName.exe"
@@ -80,7 +82,9 @@ if ($Command -eq "build-all") {
     
     Set-Location $BUILD_DIR
     cmake ..
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     cmake --build . --config Release
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     Set-Location ..
     
     # 查找所有示例并复制exe文件

@@ -20,8 +20,10 @@ namespace iocpnet {
 
     void incr_io_count() { io_pending_count_.fetch_add(1); }
     void decr_io_count() {
-      if (io_pending_count_.load(std::memory_order_acquire) > 0) {
-        io_pending_count_.fetch_add(-1, std::memory_order_release);
+      int expected = io_pending_count_.load(std::memory_order_acquire);
+      while (expected > 0 && !io_pending_count_.compare_exchange_weak(expected, expected - 1,
+                                                                      std::memory_order_acq_rel,
+                                                                      std::memory_order_acquire)) {
       }
     }
     int  pending_io_count() const { return io_pending_count_.load(std::memory_order_acquire); }
@@ -43,7 +45,7 @@ namespace iocpnet {
     std::function<void(ReadContext*, DWORD)>       on_read_func_;
     std::function<void(WriteContext*, DWORD)>      on_write_func_;
     std::function<void(ConnectContext*)>           on_connect_func_;
-    std::atomic_int                                io_pending_count_;
+    std::atomic_int                                io_pending_count_ {0};
   };
 } // namespace iocpnet
 

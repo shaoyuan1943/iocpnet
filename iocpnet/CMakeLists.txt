@@ -8,12 +8,11 @@ add_library(iocpnet
         iocp_server.cc
         iocp_sockex_func.cc
         iocp_sock.cc
+        iocp_timer.cc
         iocp_acceptor.h
         iocp_acceptor.cc
         iocp_conn.h
         iocp_conn.cc
-        iocp_connector.h
-        iocp_connector.cc
         iocpnet.h
 )
 
@@ -22,10 +21,15 @@ target_include_directories(iocpnet PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/..  # This points to the parent directory
 )
 
-# Link required Windows libraries
-if (WIN32)
-    target_link_libraries(iocpnet
-            ws2_32  # Windows Sockets 2
-            Mswsock
-    )
-endif ()
+# Define a variable with all the source files for direct inclusion
+set(IOCPNET_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/iocp_channel.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/iocp_event_poll.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/iocp_server.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/iocp_sockex_func.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/iocp_sock.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/iocp_timer.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/iocp_acceptor.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/iocp_conn.cc
+    PARENT_SCOPE
+)
